@@ -5,11 +5,11 @@ const db = new sqlite3.Database('./pethouse.db');
 db.run(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    name TEXT NOT NULL,
+    email TEXT UNIQUE,
+    passwordHash TEXT,
+    name TEXT,
     role TEXT DEFAULT 'user',
-    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )
 `);
 
