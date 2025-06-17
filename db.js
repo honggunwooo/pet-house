@@ -15,7 +15,7 @@ db.run(`
 
 // favorites 테이블
 db.run(`
-  CREATE TABLE IF NOT EXISTS favorites (
+  CREATE TABLE IF NOT EXISTS interests (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     userId INTEGER NOT NULL,
     animalId TEXT NOT NULL,
