@@ -7,7 +7,7 @@ require('dotenv').config();
 const API_KEY = process.env.PET_API_KEY;
 const BASE_URL = 'https://apis.data.go.kr/1543061/abandonmentPublicService_v2/abandonmentPublic_v2';
 
-// 날짜 포맷: yyyyMMdd
+
 function formatDate(date) {
   return date.toISOString().slice(0, 10).replace(/-/g, '');
 }
@@ -34,7 +34,7 @@ router.get('/', async (req, res) => {
         pageNo,
         bgnde: formatDate(weekAgo),
         endde: formatDate(today),
-        state: 'notice', // 공고 중만 보기
+        state: 'notice', 
         upr_cd,
         org_cd,
         kind,

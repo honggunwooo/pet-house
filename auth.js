@@ -1,10 +1,34 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken'); // jwt 임포트
 const db = require('./db');
 const { generateToken } = require('./jwt');
 
 const router = express.Router();
 
+// 토큰을 블랙리스트로 관리 (메모리 사용, DB나 Redis로 변경 가능)
+let jwtBlacklist = [];
+
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) return res.status(401).json({ message: '토큰이 없습니다.' });
+
+  // 토큰이 블랙리스트에 있으면 인증 실패 처리
+  if (jwtBlacklist.includes(token)) {
+    return res.status(403).json({ message: '유효하지 않은 토큰입니다.' });
+  }
+
+  // 토큰 검증
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ message: '유효하지 않은 토큰입니다.' });
+    req.user = user;
+    next();
+  });
+}
+
+// 회원가입
 router.post('/register', async (req, res) => {
   const { email, password, name } = req.body;
   if (!email || !password || !name) {
@@ -34,6 +58,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// 로그인
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
   db.get('SELECT * FROM users WHERE email = ?', [email], async (err, user) => {
@@ -49,6 +74,18 @@ router.post('/login', (req, res) => {
     const token = generateToken(user);
     res.json({ token, user: { id: user.id, email: user.email, name: user.name } });
   });
+});
+
+// 로그아웃
+router.post('/logout', authenticateToken, (req, res) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (token) {
+    // 블랙리스트에 토큰 추가
+    jwtBlacklist.push(token);
+    res.json({ message: '로그아웃 성공' });
+  } else {
+    res.status(400).json({ message: '토큰이 없습니다.' });
+  }
 });
 
 module.exports = router;
