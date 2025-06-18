@@ -1,32 +1,10 @@
+// auth.js
 const express = require('express');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken'); // jwt 임포트
 const db = require('./db');
-const { generateToken } = require('./jwt');
+const { generateToken, authenticateToken } = require('./jwt');  // authenticateToken을 import
 
 const router = express.Router();
-
-// 토큰을 블랙리스트로 관리 (메모리 사용, DB나 Redis로 변경 가능)
-let jwtBlacklist = [];
-
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) return res.status(401).json({ message: '토큰이 없습니다.' });
-
-  // 토큰이 블랙리스트에 있으면 인증 실패 처리
-  if (jwtBlacklist.includes(token)) {
-    return res.status(403).json({ message: '유효하지 않은 토큰입니다.' });
-  }
-
-  // 토큰 검증
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ message: '유효하지 않은 토큰입니다.' });
-    req.user = user;
-    next();
-  });
-}
 
 // 회원가입
 router.post('/register', async (req, res) => {
@@ -78,7 +56,7 @@ router.post('/login', (req, res) => {
 
 // 로그아웃
 router.post('/logout', authenticateToken, (req, res) => {
-  const token = req.headers['authorization']?.split(' ')[1];
+  const token = req.headers['authorization']?.split(' ')[1];  // Authorization 헤더에서 토큰 추출
   if (token) {
     // 블랙리스트에 토큰 추가
     jwtBlacklist.push(token);

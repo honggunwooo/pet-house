@@ -1,3 +1,4 @@
+// jwt.js
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 dotenv.config();
@@ -13,7 +14,7 @@ function generateToken(user) {
 }
 
 function authenticateToken(req, res, next) {
-  const authHeader = req.headers.authorization;
+  const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) return res.status(401).json({ message: '인증이 필요합니다.' });
