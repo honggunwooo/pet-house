@@ -1,7 +1,10 @@
 const sqlite3 = require('sqlite3').verbose();
 const db = new sqlite3.Database('./pethouse.db');
 
-// users 테이블
+// 외래키 제약 활성화
+db.run('PRAGMA foreign_keys = ON;');
+
+
 db.run(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -13,7 +16,6 @@ db.run(`
   )
 `);
 
-// favorites 테이블
 db.run(`
   CREATE TABLE IF NOT EXISTS interests (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -24,7 +26,6 @@ db.run(`
   )
 `);
 
-// applications 테이블
 db.run(`
   CREATE TABLE IF NOT EXISTS applications (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
