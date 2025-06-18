@@ -1,12 +1,11 @@
-// auth.js
+// src/auth.js
 const express = require('express');
 const bcrypt = require('bcrypt');
 const db = require('./db');
 const { generateToken, authenticateToken } = require('./jwt');  // authenticateToken을 import
-
 const router = express.Router();
 
-// 회원가입
+// 회원가입 API
 router.post('/register', async (req, res) => {
   const { email, password, name } = req.body;
   if (!email || !password || !name) {
@@ -19,7 +18,7 @@ router.post('/register', async (req, res) => {
         return res.status(400).json({ message: '이미 존재하는 이메일입니다.' });
       }
 
-      const hash = await bcrypt.hash(password, 10);
+      const hash = await bcrypt.hash(password, 10);  // 비밀번호 암호화
       db.run('INSERT INTO users (email, passwordHash, name, role) VALUES (?, ?, ?, ?)',
         [email, hash, name, 'user'],
         function (err) {
@@ -36,9 +35,10 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// 로그인
+// 로그인 API
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
+  
   db.get('SELECT * FROM users WHERE email = ?', [email], async (err, user) => {
     if (err || !user) {
       return res.status(401).json({ message: '이메일 또는 비밀번호가 잘못되었습니다.' });
@@ -49,12 +49,12 @@ router.post('/login', (req, res) => {
       return res.status(401).json({ message: '이메일 또는 비밀번호가 잘못되었습니다.' });
     }
 
-    const token = generateToken(user);
+    const token = generateToken(user);  // JWT 토큰 생성
     res.json({ token, user: { id: user.id, email: user.email, name: user.name } });
   });
 });
 
-// 로그아웃
+// 로그아웃 API
 router.post('/logout', authenticateToken, (req, res) => {
   const token = req.headers['authorization']?.split(' ')[1];  // Authorization 헤더에서 토큰 추출
   if (token) {

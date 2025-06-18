@@ -1,7 +1,9 @@
+// src/server.js
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
+const profileRoutes = require('./profile');  // profile.js 라우터 불러오기
 const authRoutes = require('./auth');
 const animalRoutes = require('./api');
 const interestRoutes = require('./interests');
@@ -15,14 +17,14 @@ app.use(morgan('dev'));
 
 // CORS 설정 (프론트 주소만 허용)
 app.use(cors({
-  origin: 'http://localhost:3000',  // 프론트 주소 (프론트가 3000 포트를 사용한다고 가정)
+  origin: 'http://localhost:3000',  // 프론트 주소
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
 app.use(express.json());
 
 // 라우터 연결
+app.use('/api', profileRoutes);  // profileRoutes를 '/api' 경로에 연결
 app.use('/api/auth', authRoutes);
 app.use('/api/animals', animalRoutes);
 app.use('/api/interests', interestRoutes);
