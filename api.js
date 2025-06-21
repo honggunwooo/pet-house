@@ -23,7 +23,6 @@ function getDateRange() {
   return { today, weekAgo };
 }
 
-// 📌 동물 목록 조회
 async function getAnimalList({ pageNo, numOfRows, upr_cd, org_cd, kind, neuter_yn }) {
   const { today, weekAgo } = getDateRange();
   const res = await axios.get(BASE_URL, {
@@ -55,7 +54,6 @@ async function getAnimalList({ pageNo, numOfRows, upr_cd, org_cd, kind, neuter_y
   };
 }
 
-// POST /api/animals - 목록 조회
 router.post('/', async (req, res) => {
   try {
     const pageNo = req.body?.data?.pagenumber || 1;
@@ -65,53 +63,6 @@ router.post('/', async (req, res) => {
   } catch (err) {
     console.error('❌ 동물 목록 조회 오류:', err.message);
     res.status(500).json({ message: '동물 목록을 불러올 수 없습니다.', error: err.message });
-  }
-});
-
-// GET /api/animals/:desertionNo - 상세 조회
-router.get('/:desertionNo', async (req, res) => {
-  console.log('✅ 요청 들어옴:', req.params.desertionNo);
-  const { desertionNo } = req.params;
-
-  try {
-    const response = await axios.get(BASE_URL, {
-      params: {
-        serviceKey: API_KEY,
-        _type: 'json',
-        desertionNo,
-      },
-    });
-
-    const item = response.data?.response?.body?.items?.item;
-
-    if (!item) {
-      return res.status(404).json({ message: '해당 동물 정보를 찾을 수 없습니다.' });
-    }
-
-    res.json({
-      desertionNo: item.desertionNo,
-      happenDt: item.happenDt,
-      happenPlace: item.happenPlace,
-      kindNm: item.kindNm,
-      age: item.age,
-      weight: item.weight,
-      colorCd: item.colorCd,
-      sexCd: item.sexCd,
-      neuterYn: item.neuterYn,
-      specialMark: item.specialMark,
-      processState: item.processState,
-      noticeNo: item.noticeNo,
-      noticeSdt: item.noticeSdt,
-      noticeEdt: item.noticeEdt,
-      careNm: item.careNm,
-      careTel: item.careTel,
-      careAddr: item.careAddr,
-      popfile1: item.popfile || '',      // 이미지 1
-      popfile2: item.popfile2 || '',     // 이미지 2
-    });
-  } catch (err) {
-    console.error('상세 정보 조회 오류:', err.response?.data || err.message);
-    res.status(500).json({ message: '상세 정보를 불러오는 데 실패했습니다.', error: err.message });
   }
 });
 

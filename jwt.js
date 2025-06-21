@@ -1,4 +1,3 @@
-// src/jwt.js
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 dotenv.config();
@@ -9,7 +8,7 @@ function generateToken(user) {
   return jwt.sign(
     { id: user.id, email: user.email, role: user.role },
     secret,
-    { expiresIn: '7d' }  // 토큰 만료 시간 7일로 설정
+    { expiresIn: '7d' }  
   );
 }
 
