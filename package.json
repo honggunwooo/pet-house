@@ -7,7 +7,7 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
-    "nodemon": "^3.1.10",
+    "multer": "^2.0.1",
     "sqlite3": "^5.1.7",
     "xml2js": "^0.6.2"
   },
@@ -21,5 +21,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
 }
