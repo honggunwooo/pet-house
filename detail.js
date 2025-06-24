@@ -1,5 +1,6 @@
 const express = require('express');
 const axios = require('axios');
+const xml2js = require('xml2js');
 require('dotenv').config();
 
 const router = express.Router();
@@ -12,28 +13,30 @@ router.get('/:desertionNo', async (req, res) => {
   console.log('✅ 상세 요청 도착:', desertionNo);
 
   try {
-    const response = await axios.get(BASE_URL, {
-      params: {
-        serviceKey: API_KEY,
-        _type: 'json',
-        desertionNo,
-      },
+    const url = `${BASE_URL}?serviceKey=${encodeURIComponent(API_KEY)}&desertion_no=${desertionNo}`;
+
+    const response = await axios.get(url, {
+      responseType: 'text', // 중요: XML 응답을 문자열로 받기
     });
 
+    // 🧪 응답 원본 확인
+    console.log('🧪 공공 API 응답(XML):', response.data);
 
-    console.log('🧪 공공 API 응답 원본:', JSON.stringify(response.data, null, 2));
+    // XML → JSON 파싱
+    const parser = new xml2js.Parser({ explicitArray: false });
+    const result = await parser.parseStringPromise(response.data);
 
-    const item = response.data?.response?.body?.items?.item;
+    const item = result?.response?.body?.items?.item;
 
     if (!item) {
       console.log('⚠️ item이 존재하지 않음 (null 또는 undefined)');
       return res.status(404).json({ message: '해당 동물 정보를 찾을 수 없습니다.' });
     }
 
+    // ✅ item이 배열일 경우 대비
     const data = Array.isArray(item) ? item[0] : item;
 
-
-    console.log('✅ 상세 데이터 추출:', data);
+    console.log('✅ 상세 데이터 추출:', data.happenPlace);
 
     res.json({
       desertionNo: data.desertionNo,
@@ -53,7 +56,7 @@ router.get('/:desertionNo', async (req, res) => {
       careNm: data.careNm,
       careTel: data.careTel,
       careAddr: data.careAddr,
-      popfile1: data.popfile || '',
+      popfile1: data.popfile1 || '',
       popfile2: data.popfile2 || '',
     });
   } catch (err) {

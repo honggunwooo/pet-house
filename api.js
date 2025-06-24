@@ -7,10 +7,6 @@ const router = express.Router();
 const API_KEY = process.env.PET_API_KEY;
 const BASE_URL = 'https://apis.data.go.kr/1543061/abandonmentPublicService_v2/abandonmentPublic_v2';
 
-// 미들웨어
-router.use(cors());
-router.use(express.json());
-
 // 날짜 포맷 함수 (YYYYMMDD)
 function formatDate(date) {
   return date.toISOString().slice(0, 10).replace(/-/g, '');
@@ -23,6 +19,7 @@ function getDateRange() {
   return { today, weekAgo };
 }
 
+// 동물 데이터 요청 함수
 async function getAnimalList({ pageNo, numOfRows, upr_cd, org_cd, kind, neuter_yn }) {
   const { today, weekAgo } = getDateRange();
   const res = await axios.get(BASE_URL, {
@@ -54,11 +51,23 @@ async function getAnimalList({ pageNo, numOfRows, upr_cd, org_cd, kind, neuter_y
   };
 }
 
+// POST /api/animals
 router.post('/', async (req, res) => {
   try {
-    const pageNo = req.body?.data?.pagenumber || 1;
-    const { numOfRows = 9, upr_cd, org_cd, kind, neuter_yn } = req.body;
-    const data = await getAnimalList({ pageNo, numOfRows, upr_cd, org_cd, kind, neuter_yn });
+    const body = req.body || {};
+    const pageNo = body.pagenumber || 1;
+    const numOfRows = body.numOfRows || 9;
+    const { upr_cd, org_cd, kind, neuter_yn } = body;
+
+    const data = await getAnimalList({
+      pageNo,
+      numOfRows,
+      upr_cd,
+      org_cd,
+      kind,
+      neuter_yn,
+    });
+
     res.json(data);
   } catch (err) {
     console.error('❌ 동물 목록 조회 오류:', err.message);
